@@ -16,35 +16,6 @@ const db = knex({
 
 const app = express();
 app.use(bodyParser.json());
-
-const database = {
-  users: [
-    {
-      id: "123",
-      name: "john",
-      email: "john@gmail.com",
-      password: "cookies",
-      entries: 0,
-      joined: new Date(),
-    },
-    {
-      id: "124",
-      name: "sally",
-      email: "saly@gmail.com",
-      password: "bananas",
-      entries: 0,
-      joined: new Date(),
-    },
-  ],
-  login: [
-    {
-      id: "879",
-      hash: "",
-      email: "john@gmail.com",
-    },
-  ],
-};
-
 app.use(cors());
 
 app.get("/", (req, res) => {
@@ -52,19 +23,28 @@ app.get("/", (req, res) => {
 });
 
 app.post("/signin", (req, res) => {
-  if (
-    req.body.email === database.users[0].email &&
-    req.body.password === database.users[0].password
-  ) {
-    res.status(200).json(database.users[0]);
-  } else {
-    res.status(400).json("error logging in");
-  }
+  db.select("email", "hash")
+    .from("login")
+    .where("email", "=", req.body.email)
+    .then((data) => {
+      const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
+      if (isValid) {
+        return db
+          .select("*")
+          .from("users")
+          .where("email", "=", req.body.email)
+          .then((user) => res.json(user[0]))
+          .catch((err) => res.status(400).json("Unable to get user"));
+      } else {
+        res.status(400).json("Wrong credentials");
+      }
+    })
+    .catch((err) => res.status(400).json("Wrong credentials"));
 });
 
 app.post("/register", (req, res) => {
   const { email, name, password } = req.body;
-  const hash = bcrypt.hash(password);
+  const hash = bcrypt.hashSync(password);
   db.transaction((trx) => {
     trx
       .insert({
@@ -77,7 +57,7 @@ app.post("/register", (req, res) => {
         return trx("users")
           .returning("*")
           .insert({
-            email: LoginEmail[0],
+            email: LoginEmail[0].email,
             name: name,
             joined: new Date(),
           })
@@ -87,7 +67,7 @@ app.post("/register", (req, res) => {
       })
       .then(trx.commit)
       .catch(trx.rollback);
-  }).catch((err) => res.status(400).json("Enable to register"));
+  }).catch((err) => res.status(400).json("Unable to register"));
 });
 
 app.get("/profile/:id", (req, res) => {
