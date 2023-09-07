@@ -4,18 +4,21 @@ import bcrypt from "bcrypt-nodejs";
 import cors from "cors";
 import knex from "knex";
 
-import handleImage  from "./controllers/image.js";
-import handleSignIn  from "./controllers/signin.js";
-import handleProfile  from "./controllers/profile.js";
-import handleRegister  from "./controllers/register.js";
+import handleImage from "./controllers/image.js";
+import handleSignIn from "./controllers/signin.js";
+import handleProfile from "./controllers/profile.js";
+import handleRegister from "./controllers/register.js";
 
 const db = knex({
   client: "pg",
   connection: {
-    host: "127.0.0.1",
-    user: "postgres",
-    password: "Dhia@1988",
-    database: "smart-brain",
+    connectionString: process.env.DATABSE_URL,
+    ssl: { rejectUnauthorized: false },
+    host: process.env.DATABSE_HOST,
+    port: 5432,
+    user: process.env.DATABSE_USER,
+    password: process.env.DATABSE_PW,
+    database: process.env.DATABSE_DB,
   },
 });
 
@@ -41,5 +44,5 @@ app.put("/image", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Listening on port ${port}`)
-})
+  console.log(`Listening on port ${port}`);
+});
