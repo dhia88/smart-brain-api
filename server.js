@@ -20,6 +20,7 @@ const db = knex({
 });
 
 const app = express();
+const port = process.env.PORT || 3001;
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -39,6 +40,6 @@ app.put("/image", (req, res) => {
   handleImage(req, res, db);
 });
 
-app.listen(3001, () => {
-  console.log("app is running");
-});
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`)
+})
