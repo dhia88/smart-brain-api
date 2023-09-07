@@ -12,13 +12,13 @@ import handleRegister from "./controllers/register.js";
 const db = knex({
   client: "pg",
   connection: {
-    connectionString: process.env.DATABSE_URL,
+    connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
-    host: process.env.DATABSE_HOST,
+    host: process.env.DATABASE_HOST,
     port: 5432,
-    user: process.env.DATABSE_USER,
-    password: process.env.DATABSE_PW,
-    database: process.env.DATABSE_DB,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PW,
+    database: process.env.DATABASE_DB,
   },
 });
 
